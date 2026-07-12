@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 720" width="1600" height="720" role="img"
+     aria-labelledby="sct scd" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif">
+  <title id="sct">Qual resposta de pesquisa um revisor às cegas escolheria?</title>
+  <desc id="scd">Paired blind evaluation on 17 real decision tasks, same Claude Sonnet 5 configuration, blind judge, a tie does not count as a Quarry win. Claude Sonnet 5 sozinho was preferred 12% of the time; Claude Sonnet 5 plus Quarry was preferred 88% of the time. Same product story, additional outcomes: 4.35 direções fracas per run; 100% of answers receberam um teste concreto de uma semana; 8 of 8 already-existing ideas caught antes da recomendação. Internal evaluation.</desc>
+
+  <rect x="0" y="0" width="1600" height="720" rx="14" fill="#05070b"/>
+  <rect x="20" y="20" width="1560" height="680" rx="12" fill="#0a0e15" stroke="#253044" stroke-width="2"/>
+  <path d="M64 470H1536 M64 644H1536" stroke="#253044" stroke-width="1"/>
+
+  <!-- headline -->
+  <text x="64" y="98" font-size="48" font-weight="800" fill="#f2f7ff">Qual resposta de pesquisa um revisor às cegas escolheria?</text>
+
+  <!-- bar 1: Claude Sonnet 5 sozinho (12%) -->
+  <text x="64" y="170" font-size="27" font-weight="650" fill="#9aabc1">Claude Sonnet 5 sozinho</text>
+  <rect x="64" y="184" width="177" height="82" rx="4" fill="#334155"/>
+  <text x="225" y="245" font-size="52" font-weight="800" fill="#dce7f5" text-anchor="end">12%</text>
+
+  <!-- bar 2: Claude Sonnet 5 + Quarry (88%, winning paired result = green) -->
+  <text x="64" y="326" font-size="27" font-weight="750" fill="#f2f7ff">Claude Sonnet 5 + Quarry</text>
+  <rect x="64" y="338" width="1295" height="82" rx="4" fill="#1e9bff"/>
+  <text x="1336" y="401" font-size="66" font-weight="800" fill="#06101d" text-anchor="end">88%</text>
+
+
+  <!-- three secondary outcomes (no fabricated paired percentages) -->
+  <text x="320" y="542" text-anchor="middle" font-size="48" font-weight="800" fill="#63b3ff">4.35</text>
+  <text x="320" y="584" text-anchor="middle" font-size="24" fill="#dce7f5">direções fracas</text>
+  <text x="320" y="615" text-anchor="middle" font-size="24" fill="#9aabc1">eliminadas por execução</text>
+
+  <text x="800" y="542" text-anchor="middle" font-size="48" font-weight="800" fill="#35d6a3">100%</text>
+  <text x="800" y="584" text-anchor="middle" font-size="24" fill="#dce7f5">receberam um teste concreto</text>
+  <text x="800" y="615" text-anchor="middle" font-size="24" fill="#9aabc1">de uma semana</text>
+
+  <text x="1280" y="542" text-anchor="middle" font-size="48" font-weight="800" fill="#35d6a3">8/8</text>
+  <text x="1280" y="584" text-anchor="middle" font-size="24" fill="#dce7f5">ideias já existentes detectadas</text>
+  <text x="1280" y="615" text-anchor="middle" font-size="24" fill="#9aabc1">antes da recomendação</text>
+
+  <!-- method note inside the image -->
+  <text x="64" y="680" font-size="23" fill="#6f819a" font-family="ui-monospace, 'SF Mono', Menlo, monospace">17 tarefas reais de decisão. Mesma configuração do Sonnet 5. Juiz às cegas. Um empate não conta como vitória do Quarry. Avaliação interna.</text>
+</svg>

@@ -1,0 +1,9 @@
+{
+  "name": "quarry",
+  "version": "1.0.0",
+  "description": "Supercharge AI research with better opportunity discovery, evidence checks, and decision-ready outputs.",
+  "author": { "name": "AWF-Z" },
+  "homepage": "https://github.com/AWF-Z/quarry",
+  "license": "MIT",
+  "keywords": ["research", "opportunity-discovery", "market-research", "evidence", "decision-making"]
+}

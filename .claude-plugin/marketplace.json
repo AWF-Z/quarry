@@ -1,0 +1,11 @@
+{
+  "name": "quarry",
+  "owner": { "name": "AWF-Z" },
+  "plugins": [
+    {
+      "name": "quarry",
+      "source": "./",
+      "description": "Supercharge AI research with better opportunities, fewer weak directions, stronger evidence, and a concrete next action."
+    }
+  ]
+}
