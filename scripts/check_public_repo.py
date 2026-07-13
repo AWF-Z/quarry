@@ -17,12 +17,14 @@ REQUIRED = (
     "SECURITY.md",
     "CONTRIBUTING.md",
     "CODE_OF_CONDUCT.md",
+    "install.py",
     ".github/CODEOWNERS",
     ".claude-plugin/plugin.json",
     ".claude-plugin/marketplace.json",
     ".mcp.json",
     "client/quarry_mcp.py",
     "skills/quarry/SKILL.md",
+    "scripts/test_universal_installer.py",
 )
 SECRET_PATTERNS = (
     re.compile(r"ghp_[A-Za-z0-9]{30,}"),

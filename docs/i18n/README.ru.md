@@ -15,7 +15,7 @@ Quarry превращает открытое исследование в обо�
 ![Quarry blind comparison](../assets/i18n/ru/quarry-sonnet-comparison.svg)
 
 ```text
-/plugin marketplace add AWF-Z/quarry && /plugin install quarry@quarry
+curl -fsSL https://raw.githubusercontent.com/AWF-Z/quarry/main/install.py | python3
 ```
 
 *Internal blinded evaluation. Same task and model configuration; Quarry adds its research workflow.*

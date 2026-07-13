@@ -113,7 +113,14 @@ TOOLS = [
 
 
 def _config():
-    base = os.environ.get("QUARRY_API_URL", DEFAULT_API_URL).strip().rstrip("/")
+    configured_base = ""
+    config_path = Path(os.environ.get("QUARRY_CONFIG_FILE", "~/.quarry/config.json")).expanduser()
+    try:
+        if config_path.is_file():
+            configured_base = str(json.loads(config_path.read_text()).get("api_url", ""))
+    except (OSError, ValueError, TypeError):
+        configured_base = ""
+    base = os.environ.get("QUARRY_API_URL", configured_base or DEFAULT_API_URL).strip().rstrip("/")
     token = os.environ.get("QUARRY_API_KEY", "").strip()
     if not base:
         raise RuntimeError("Full Quarry service is not configured. Set QUARRY_API_URL to the hosted Quarry endpoint.")

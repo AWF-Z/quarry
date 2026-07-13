@@ -20,3 +20,5 @@ jobs:
         run: python3 scripts/check_public_repo.py
       - name: Test MCP bridge
         run: python3 scripts/test_mcp_client.py
+      - name: Test universal installer
+        run: python3 scripts/test_universal_installer.py
