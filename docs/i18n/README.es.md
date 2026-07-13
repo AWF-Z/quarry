@@ -15,7 +15,7 @@ Quarry convierte la investigación abierta en oportunidades fundamentadas, ángu
 ![Quarry blind comparison](../assets/i18n/es/quarry-sonnet-comparison.svg)
 
 ```text
-curl -fsSL https://raw.githubusercontent.com/AWF-Z/quarry/main/install.py | python3
+curl -fsSL https://raw.githubusercontent.com/AWF-Z/quarry/v1.0.1/install.py | python3
 ```
 
 *Internal blinded evaluation. Same task and model configuration; Quarry adds its research workflow.*
