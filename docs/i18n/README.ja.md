@@ -15,7 +15,7 @@ Quarryは、オープンエンドなリサーチを、根拠に基づいたオ�
 ![Quarry blind comparison](../assets/i18n/ja/quarry-sonnet-comparison.svg)
 
 ```text
-curl -fsSL https://raw.githubusercontent.com/AWF-Z/quarry/v1.0.1/install.py | python3
+curl -fsSL https://raw.githubusercontent.com/AWF-Z/quarry/v1.0.2/install.py | python3
 ```
 
 *Internal blinded evaluation. Same task and model configuration; Quarry adds its research workflow.*

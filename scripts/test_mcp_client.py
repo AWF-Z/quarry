@@ -39,6 +39,20 @@ class ClientTests(unittest.TestCase):
         tools = CLIENT.handle({"jsonrpc": "2.0", "id": 2, "method": "tools/list"})["result"]["tools"]
         self.assertEqual([tool["name"] for tool in tools],
                          ["quarry_start", "quarry_submit", "quarry_finalize", "quarry_status"])
+        instructions = response["result"]["instructions"]
+        self.assertIn("execution_receipt.display", instructions)
+        self.assertIn("Quarry Skill Only", instructions)
+
+    def test_finalize_tool_requires_visible_execution_receipt(self):
+        tools = CLIENT.handle({"jsonrpc": "2.0", "id": 2, "method": "tools/list"})["result"]["tools"]
+        finalize = next(tool for tool in tools if tool["name"] == "quarry_finalize")
+        self.assertIn("mandatory execution_receipt", finalize["description"])
+
+    def test_public_skill_requires_honest_mode_label(self):
+        skill = (ROOT / "skills" / "quarry" / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("Full Quarry \u2022 run qr_...", skill)
+        self.assertIn("Quarry Skill Only \u2022 hosted verification not run", skill)
+        self.assertIn("Never invent a run ID", skill)
 
     def test_missing_endpoint_fails_closed(self):
         with patch.dict(os.environ, {"QUARRY_CONFIG_FILE": "/definitely/missing/quarry.json"}, clear=True), \

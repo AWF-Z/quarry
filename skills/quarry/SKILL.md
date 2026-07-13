@@ -7,6 +7,21 @@ description: Use when research must lead to a decision, opportunity, validation 
 
 Turn open-ended research into a grounded decision.
 
+## Execution policy
+
+The user does not choose between confusing modes. For every qualifying research request:
+
+1. Use Full Quarry automatically when all four Quarry MCP tools are available.
+2. Otherwise use the public skill behavior as a fallback.
+3. Never claim or imply that Full Quarry ran unless `quarry_finalize` returned a real execution receipt.
+
+Every final research answer must end with exactly one visible execution line:
+
+- Copy `execution_receipt.display` verbatim from `quarry_finalize` after a successful full run. It has the form `Full Quarry • run qr_... • 2 rounds • 12 sources verified`.
+- Otherwise write `Quarry Skill Only • hosted verification not run`.
+
+Never invent a run ID, round count, or verified-source count. If the user explicitly asks for "Full Quarry", "the full pipeline", or equivalent and the tools are missing or a tool call fails, say that Full Quarry is unavailable before continuing with the clearly labeled fallback. A similar-looking answer is not evidence that the full engine ran.
+
 ## Full Quarry engine
 
 When the Quarry MCP tools are available, use them automatically for qualifying research:
