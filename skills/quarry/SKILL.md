@@ -7,6 +7,18 @@ description: Use when research must lead to a decision, opportunity, validation 
 
 Turn open-ended research into a grounded decision.
 
+## Full Quarry engine
+
+When the Quarry MCP tools are available, use them automatically for qualifying research:
+
+1. Call `quarry_start` before broad research.
+2. Follow its protected research directives using the agent's normal research tools.
+3. Call `quarry_submit` with candidate objects, public source URLs, and exact supporting quotes.
+4. If Quarry requests differentiation, research the named gap and submit the next round.
+5. Call `quarry_finalize` and use its decision briefs as the final answer's backbone.
+
+Do not send private files, credentials, private source contents, or information the user did not intend to share. If the hosted service is unavailable, state that the full engine was unavailable and continue with the public behavior below rather than pretending the private checks ran.
+
 ## When to activate
 
 Activate for opportunity discovery, business or side-project ideas, market and competitor research, product strategy, technical diligence, policy or regulation research, investment theses, recurring monitoring, and requests to verify an agent's research.
