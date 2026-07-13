@@ -41,7 +41,7 @@ class ClientTests(unittest.TestCase):
                          ["quarry_start", "quarry_submit", "quarry_finalize", "quarry_status"])
 
     def test_missing_endpoint_fails_closed(self):
-        with patch.dict(os.environ, {}, clear=True):
+        with patch.dict(os.environ, {}, clear=True), patch.object(CLIENT, "DEFAULT_API_URL", ""):
             result = CLIENT.handle({"jsonrpc": "2.0", "id": 3, "method": "tools/call",
                                     "params": {"name": "quarry_start", "arguments": {"question": "x"}}})
         self.assertTrue(result["result"]["isError"])

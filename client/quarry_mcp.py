@@ -18,6 +18,7 @@ import urllib.request
 VERSION = "1.0.0"
 PROTOCOL_VERSION = "2025-11-25"
 MAX_RESPONSE = 2_000_000
+DEFAULT_API_URL = "https://quarry-core-awfz.fly.dev"
 
 
 TOOLS = [
@@ -112,7 +113,7 @@ TOOLS = [
 
 
 def _config():
-    base = os.environ.get("QUARRY_API_URL", "").strip().rstrip("/")
+    base = os.environ.get("QUARRY_API_URL", DEFAULT_API_URL).strip().rstrip("/")
     token = os.environ.get("QUARRY_API_KEY", "").strip()
     if not base:
         raise RuntimeError("Full Quarry service is not configured. Set QUARRY_API_URL to the hosted Quarry endpoint.")
