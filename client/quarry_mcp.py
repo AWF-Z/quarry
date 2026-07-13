@@ -15,7 +15,7 @@ import urllib.error
 import urllib.request
 
 
-VERSION = "1.0.0"
+VERSION = "1.0.2"
 PROTOCOL_VERSION = "2025-11-25"
 MAX_RESPONSE = 2_000_000
 DEFAULT_API_URL = "https://quarry-core-awfz.fly.dev"
@@ -91,7 +91,7 @@ TOOLS = [
     },
     {
         "name": "quarry_finalize",
-        "description": "Compile a completed Quarry run into ranked decision briefs, eliminated directions, evidence receipts, next tests, and walk-away conditions.",
+        "description": "Compile a completed Quarry run into ranked decision briefs and a mandatory execution_receipt. Copy execution_receipt.display verbatim into the final answer.",
         "inputSchema": {
             "type": "object",
             "properties": {"run_id": {"type": "string"}},
@@ -211,7 +211,12 @@ def handle(message: dict) -> dict | None:
         return _result(request_id, {"protocolVersion": requested or PROTOCOL_VERSION,
                                     "capabilities": {"tools": {"listChanged": False}},
                                     "serverInfo": {"name": "quarry-core", "version": VERSION},
-                                    "instructions": "Use Quarry for research that must produce a decision. Follow next_tool until quarry_finalize."})
+                                    "instructions": (
+                                        "Use Quarry automatically for research that must produce a decision. "
+                                        "Follow next_tool until quarry_finalize, then copy execution_receipt.display "
+                                        "verbatim into the final answer. If a full run cannot complete, label the "
+                                        "answer: Quarry Skill Only \u2022 hosted verification not run."
+                                    )})
     if method == "ping":
         return _result(request_id, {})
     if method == "tools/list":

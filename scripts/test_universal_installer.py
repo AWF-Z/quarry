@@ -34,11 +34,13 @@ def test_cursor_merge_preserves_existing() -> None:
 
 def test_local_install_without_detected_agent() -> None:
     with tempfile.TemporaryDirectory() as temporary:
-        home = Path(temporary) / "quarry-home"
+        user_home = Path(temporary) / "user-home"
+        home = user_home / "quarry-home"
         args = installer.parse_args(["--source-dir", str(ROOT)])
-        with mock.patch.dict(os.environ, {"QUARRY_HOME": str(home)}, clear=False), \
-             mock.patch.object(installer, "_detected_agents", return_value=[]):
-            assert installer.install(args) == 0
+        with mock.patch.dict(os.environ, {"HOME": str(user_home), "QUARRY_HOME": str(home)}, clear=False), \
+             mock.patch.object(installer, "_detected_agents", return_value=[]), \
+             mock.patch.object(installer, "_service_health", return_value=(True, "reachable")):
+            assert installer.install(args) == 1
         client = home / "client" / "quarry_mcp.py"
         skill = home / "skills" / "quarry" / "SKILL.md"
         assert client.is_file() and os.access(client, os.X_OK)
@@ -68,12 +70,80 @@ def test_cli_registration_uses_shared_client() -> None:
     assert command[-2:] == [installer.sys.executable, "/tmp/quarry.py"]
 
 
+def test_protocol_handshake_lists_every_full_quarry_tool() -> None:
+    assert installer._protocol_tools(ROOT / "client" / "quarry_mcp.py") == installer.EXPECTED_TOOLS
+
+
+def test_doctor_fails_when_agent_registration_is_missing() -> None:
+    with tempfile.TemporaryDirectory() as temporary:
+        user_home = Path(temporary) / "user-home"
+        quarry_home = user_home / ".quarry"
+        client = quarry_home / "client" / "quarry_mcp.py"
+        skill = user_home / ".agents" / "skills" / "quarry" / "SKILL.md"
+        agent_skill = user_home / ".codex" / "skills" / "quarry" / "SKILL.md"
+        client.parent.mkdir(parents=True)
+        client.write_bytes((ROOT / "client" / "quarry_mcp.py").read_bytes())
+        client.chmod(0o755)
+        skill.parent.mkdir(parents=True)
+        skill.write_bytes((ROOT / "skills" / "quarry" / "SKILL.md").read_bytes())
+        agent_skill.parent.mkdir(parents=True)
+        agent_skill.write_bytes(skill.read_bytes())
+        args = installer.parse_args(["--doctor", "--agent", "codex"])
+        with mock.patch.dict(os.environ, {"HOME": str(user_home), "QUARRY_HOME": str(quarry_home)}, clear=False), \
+             mock.patch.object(installer, "_service_health", return_value=(True, "reachable")), \
+             mock.patch.object(installer, "_detected_agents", return_value=["codex"]), \
+             mock.patch.object(installer, "_registration_ready", return_value=(False, "registration missing")):
+            assert installer.doctor(args) == 1
+
+
+def test_doctor_passes_only_with_skill_tools_service_and_registration() -> None:
+    with tempfile.TemporaryDirectory() as temporary:
+        user_home = Path(temporary) / "user-home"
+        args = installer.parse_args(["--source-dir", str(ROOT), "--agent", "codex"])
+        with mock.patch.dict(os.environ, {"HOME": str(user_home), "QUARRY_HOME": str(user_home / ".quarry")}, clear=False), \
+             mock.patch.object(installer, "_detected_agents", return_value=["codex"]), \
+             mock.patch.object(installer.shutil, "which", side_effect=lambda command: "/tmp/codex" if command == "codex" else None), \
+             mock.patch.object(installer, "_register_cli"), \
+             mock.patch.object(installer, "_service_health", return_value=(True, "reachable")), \
+             mock.patch.object(installer, "_registration_ready", return_value=(True, "registered")):
+            assert installer.install(args) == 0
+
+
+def test_doctor_covers_every_supported_agent_host() -> None:
+    with tempfile.TemporaryDirectory() as temporary:
+        user_home = Path(temporary) / "user-home"
+        quarry_home = user_home / ".quarry"
+        client = quarry_home / "client" / "quarry_mcp.py"
+        skill_bytes = (ROOT / "skills" / "quarry" / "SKILL.md").read_bytes()
+        client.parent.mkdir(parents=True)
+        client.write_bytes((ROOT / "client" / "quarry_mcp.py").read_bytes())
+        client.chmod(0o755)
+        for path in (
+            user_home / ".agents/skills/quarry/SKILL.md",
+            user_home / ".claude/skills/quarry/SKILL.md",
+            user_home / ".codex/skills/quarry/SKILL.md",
+            user_home / ".gemini/skills/quarry/SKILL.md",
+        ):
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(skill_bytes)
+        args = installer.parse_args(["--doctor", "--agent", "all"])
+        with mock.patch.dict(os.environ, {"HOME": str(user_home), "QUARRY_HOME": str(quarry_home)}, clear=False), \
+             mock.patch.object(installer, "_service_health", return_value=(True, "reachable")), \
+             mock.patch.object(installer, "_detected_agents", return_value=list(installer.SUPPORTED_AGENTS)), \
+             mock.patch.object(installer, "_registration_ready", return_value=(True, "registered")):
+            assert installer.doctor(args) == 0
+
+
 def main() -> int:
     test_cursor_merge_preserves_existing()
     test_local_install_without_detected_agent()
     test_agent_selection()
     test_manual_config_contains_endpoint_and_client()
     test_cli_registration_uses_shared_client()
+    test_protocol_handshake_lists_every_full_quarry_tool()
+    test_doctor_fails_when_agent_registration_is_missing()
+    test_doctor_passes_only_with_skill_tools_service_and_registration()
+    test_doctor_covers_every_supported_agent_host()
     print("Universal installer tests passed.")
     return 0
 

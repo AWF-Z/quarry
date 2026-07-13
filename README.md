@@ -23,7 +23,7 @@ The same model, asked the same question. Quarry pushes the research past a gener
 </div>
 
 ```text
-curl -fsSL https://raw.githubusercontent.com/AWF-Z/quarry/v1.0.1/install.py | python3
+curl -fsSL https://raw.githubusercontent.com/AWF-Z/quarry/v1.0.2/install.py | python3
 ```
 
 The installer detects and configures **Claude Code, Codex, Gemini CLI, Cursor, and VS Code**. They use the same Quarry engine and skill. For any other MCP-compatible agent, it prints the standard configuration to add.
@@ -31,14 +31,14 @@ The installer detects and configures **Claude Code, Codex, Gemini CLI, Cursor, a
 Windows PowerShell:
 
 ```powershell
-py -3 -c "import urllib.request; exec(urllib.request.urlopen('https://raw.githubusercontent.com/AWF-Z/quarry/v1.0.1/install.py').read())"
+py -3 -c "import urllib.request; exec(urllib.request.urlopen('https://raw.githubusercontent.com/AWF-Z/quarry/v1.0.2/install.py').read())"
 ```
 
 Prefer to inspect installers before running them?
 
 ```bash
-curl -fsSLo quarry-install.py https://raw.githubusercontent.com/AWF-Z/quarry/v1.0.1/install.py
-echo "daf72c834fbf8531ef7adc5e3eaec2bbd2a6a93dd58b736fd293ea069c0468b5  quarry-install.py" | shasum -a 256 -c -
+curl -fsSLo quarry-install.py https://raw.githubusercontent.com/AWF-Z/quarry/v1.0.2/install.py
+echo "2cf83230483bec7ae649e9ae354e44908fdba20e82ccbfd06ae11e9affad40b8  quarry-install.py" | shasum -a 256 -c -
 less quarry-install.py
 python3 quarry-install.py
 ```
@@ -46,7 +46,7 @@ python3 quarry-install.py
 Or install entirely from a reviewed checkout:
 
 ```bash
-git clone --branch v1.0.1 --depth 1 https://github.com/AWF-Z/quarry.git
+git clone --branch v1.0.2 --depth 1 https://github.com/AWF-Z/quarry.git
 python3 quarry/install.py --source-dir quarry
 ```
 
@@ -66,6 +66,22 @@ Compare these strategies and tell me what evidence should change the decision.
 ```
 
 Quarry activates when the work calls for research, opportunity discovery, validation, market mapping, or evidence checking. You can also call `/quarry:research` or `/quarry:discover` directly.
+
+The installer runs its doctor automatically and verifies the skill, the four MCP tools, the hosted engine, and each detected agent registration. Restart each open agent once after installation. To recheck later from a reviewed checkout, run `python3 install.py --doctor`.
+
+Every Quarry research answer shows which path actually ran:
+
+```text
+Full Quarry • run qr_... • 2 rounds • 12 sources verified
+```
+
+If the hosted engine was not used, the answer must instead say:
+
+```text
+Quarry Skill Only • hosted verification not run
+```
+
+There are only two user-visible execution states: Full Quarry and the clearly labeled Skill Only fallback.
 
 ## A better result, not just a longer answer
 
