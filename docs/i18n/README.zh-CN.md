@@ -15,7 +15,7 @@ Quarry 把开放式研究,转化为有理有据的机会、有竞争力的切入
 ![Quarry blind comparison](../assets/i18n/zh-CN/quarry-sonnet-comparison.svg)
 
 ```text
-curl -fsSL https://raw.githubusercontent.com/AWF-Z/quarry/main/install.py | python3
+curl -fsSL https://raw.githubusercontent.com/AWF-Z/quarry/v1.0.1/install.py | python3
 ```
 
 通用安装程序会自动配置 Claude Code、Codex、Gemini CLI、Cursor 和 VS Code。它们使用同一个 Quarry 引擎，不是功能不同的版本。

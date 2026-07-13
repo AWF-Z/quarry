@@ -15,8 +15,8 @@ import urllib.error
 import urllib.request
 
 
-VERSION = "1.0.0"
-DEFAULT_SOURCE_BASE = "https://raw.githubusercontent.com/AWF-Z/quarry/main"
+VERSION = "1.0.1"
+DEFAULT_SOURCE_BASE = "https://raw.githubusercontent.com/AWF-Z/quarry/v1.0.1"
 DEFAULT_API_URL = "https://quarry-core-awfz.fly.dev"
 SUPPORTED_AGENTS = ("claude", "codex", "gemini", "cursor", "vscode")
 
