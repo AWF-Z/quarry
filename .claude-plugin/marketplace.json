@@ -1,6 +1,9 @@
 {
   "name": "quarry",
   "owner": { "name": "AWF-Z" },
+  "metadata": {
+    "description": "Opportunity discovery and decision research for AI agents."
+  },
   "plugins": [
     {
       "name": "quarry",

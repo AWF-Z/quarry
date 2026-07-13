@@ -1,0 +1,26 @@
+name: Feature request
+description: Propose an improvement to the public Quarry plugin or documentation.
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: User problem
+      description: What research workflow is difficult today, and who experiences it?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed public behavior
+      description: Describe the smallest useful change without relying on unavailable private systems.
+    validations:
+      required: true
+  - type: textarea
+    id: verification
+    attributes:
+      label: How should it be verified?
+      description: Give a concrete example or acceptance test.
+    validations:
+      required: true

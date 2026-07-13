@@ -79,6 +79,12 @@ The figures above come from separate internal, precommitted evaluations of the f
 
 The public plugin contains no analytics, telemetry, credentials, or background network service. Research tools invoked by your agent remain governed by that agent platform and your own provider settings.
 
+## Contributing
+
+Contributions are welcome. Good places to help include research commands, public skill behavior, agent-platform integrations, examples, documentation, accessibility, and translations.
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md) for the public extension boundary, development workflow, and validation commands.
+
 ## License
 
 The files in this public repository are available under the [MIT License](LICENSE). Quarry product and commercial services may include separately distributed capabilities under separate terms.

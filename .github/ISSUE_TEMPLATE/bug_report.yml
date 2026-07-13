@@ -1,0 +1,39 @@
+name: Bug report
+description: Report reproducible incorrect or broken public Quarry behavior.
+title: "[Bug]: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for helping improve Quarry. Remove private data and credentials before submitting.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the observed behavior and why it is incorrect.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal reproduction
+      description: Include the command or request, expected result, and actual result.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Quarry version or commit
+      placeholder: v1.0.0
+  - type: input
+    id: environment
+    attributes:
+      label: Agent platform and version
+      placeholder: Claude Code version, operating system
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Public-data confirmation
+      options:
+        - label: I removed credentials, confidential information, and private research data.
+          required: true
