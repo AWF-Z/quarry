@@ -41,7 +41,8 @@ class ClientTests(unittest.TestCase):
                          ["quarry_start", "quarry_submit", "quarry_finalize", "quarry_status"])
 
     def test_missing_endpoint_fails_closed(self):
-        with patch.dict(os.environ, {}, clear=True), patch.object(CLIENT, "DEFAULT_API_URL", ""):
+        with patch.dict(os.environ, {"QUARRY_CONFIG_FILE": "/definitely/missing/quarry.json"}, clear=True), \
+             patch.object(CLIENT, "DEFAULT_API_URL", ""):
             result = CLIENT.handle({"jsonrpc": "2.0", "id": 3, "method": "tools/call",
                                     "params": {"name": "quarry_start", "arguments": {"question": "x"}}})
         self.assertTrue(result["result"]["isError"])
@@ -80,6 +81,15 @@ class ClientTests(unittest.TestCase):
                 CLIENT._call_api("/v1/research/start", {"question": "two"})
         self.assertEqual(captured[0], captured[1])
         self.assertTrue(captured[0].startswith("qc_"))
+
+    def test_shared_config_supplies_endpoint(self):
+        with __import__("tempfile").TemporaryDirectory() as tmp:
+            config = Path(tmp) / "config.json"
+            config.write_text(json.dumps({"api_url": "https://regional.example.test"}))
+            with patch.dict(os.environ, {"QUARRY_CONFIG_FILE": str(config)}, clear=True):
+                base, token = CLIENT._config()
+        self.assertEqual(base, "https://regional.example.test")
+        self.assertEqual(token, "")
 
 
 if __name__ == "__main__":

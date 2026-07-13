@@ -23,6 +23,20 @@ The same model, asked the same question. Quarry pushes the research past a gener
 </div>
 
 ```text
+curl -fsSL https://raw.githubusercontent.com/AWF-Z/quarry/main/install.py | python3
+```
+
+The installer detects and configures **Claude Code, Codex, Gemini CLI, Cursor, and VS Code**. They use the same Quarry engine and skill. For any other MCP-compatible agent, it prints the standard configuration to add.
+
+Windows PowerShell:
+
+```powershell
+py -3 -c "import urllib.request; exec(urllib.request.urlopen('https://raw.githubusercontent.com/AWF-Z/quarry/main/install.py').read())"
+```
+
+Claude Code users can also use its native plugin command:
+
+```text
 /plugin marketplace add AWF-Z/quarry && /plugin install quarry@quarry
 ```
 
@@ -69,7 +83,19 @@ Quarry is useful whenever research must lead to a decision, not just an answer:
 - weak directions removed before they consume more work;
 - a concrete next test and a clear walk-away condition.
 
-Quarry works around the model you already use rather than replacing it. The public plugin currently targets Claude Code; additional agent adapters are planned.
+Quarry works around the model you already use rather than replacing it. The same public MCP bridge works with Claude Code, Codex, Gemini CLI, Cursor, VS Code, and other MCP-compatible agents.
+
+## Global access
+
+The installer and client are portable across macOS, Linux, and Windows wherever Python 3 and a supported agent are available. Both distribution and service locations can be replaced without changing Quarry:
+
+```text
+QUARRY_DISTRIBUTION_URL=https://your-mirror.example/quarry \
+QUARRY_API_URL=https://your-quarry-endpoint.example \
+python3 install.py
+```
+
+This makes Quarry ready for regional mirrors and endpoints. The current public files are distributed through GitHub and the hosted engine currently runs on Fly.io, so reliable access from every network worldwide, including every mainland China network, is not yet guaranteed. See [Global availability](docs/GLOBAL_ACCESS.md).
 
 ## Numbers
 
@@ -77,7 +103,7 @@ The figures above come from separate internal, precommitted evaluations of the f
 
 ## Privacy
 
-The public plugin contains no analytics, telemetry, credentials, or background network service. Research tools invoked by your agent remain governed by that agent platform and your own provider settings.
+The public client contains no analytics or telemetry. When the full Quarry tools are used, it sends the research question, candidate summaries, and public evidence supplied by your agent to the configured Quarry service; it should not be given private files, credentials, or private source contents. Research tools invoked by your agent remain governed by that agent platform and your own provider settings.
 
 ## Contributing
 

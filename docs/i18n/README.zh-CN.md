@@ -15,8 +15,12 @@ Quarry 把开放式研究,转化为有理有据的机会、有竞争力的切入
 ![Quarry blind comparison](../assets/i18n/zh-CN/quarry-sonnet-comparison.svg)
 
 ```text
-/plugin marketplace add AWF-Z/quarry && /plugin install quarry@quarry
+curl -fsSL https://raw.githubusercontent.com/AWF-Z/quarry/main/install.py | python3
 ```
+
+通用安装程序会自动配置 Claude Code、Codex、Gemini CLI、Cursor 和 VS Code。它们使用同一个 Quarry 引擎，不是功能不同的版本。
+
+Quarry 的软件架构支持全球和中国开发者使用，也支持替换下载镜像与服务端点。当前默认下载源是 GitHub，服务端位于中国大陆境外，因此暂时不能保证在每一个中国大陆网络中稳定连接。详见[全球可用性说明](../GLOBAL_ACCESS.md)。
 
 *Internal blinded evaluation. Same task and model configuration; Quarry adds its research workflow.*
 
