@@ -102,6 +102,7 @@ def test_doctor_passes_only_with_skill_tools_service_and_registration() -> None:
         args = installer.parse_args(["--source-dir", str(ROOT), "--agent", "codex"])
         with mock.patch.dict(os.environ, {"HOME": str(user_home), "QUARRY_HOME": str(user_home / ".quarry")}, clear=False), \
              mock.patch.object(installer, "_detected_agents", return_value=["codex"]), \
+             mock.patch.object(installer.shutil, "which", side_effect=lambda command: "/tmp/codex" if command == "codex" else None), \
              mock.patch.object(installer, "_register_cli"), \
              mock.patch.object(installer, "_service_health", return_value=(True, "reachable")), \
              mock.patch.object(installer, "_registration_ready", return_value=(True, "registered")):
