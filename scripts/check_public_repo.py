@@ -20,6 +20,8 @@ REQUIRED = (
     ".github/CODEOWNERS",
     ".claude-plugin/plugin.json",
     ".claude-plugin/marketplace.json",
+    ".mcp.json",
+    "client/quarry_mcp.py",
     "skills/quarry/SKILL.md",
 )
 SECRET_PATTERNS = (
@@ -37,7 +39,7 @@ def fail(errors: list[str], message: str) -> None:
 
 
 def check_json(errors: list[str]) -> None:
-    for rel in (".claude-plugin/plugin.json", ".claude-plugin/marketplace.json"):
+    for rel in (".claude-plugin/plugin.json", ".claude-plugin/marketplace.json", ".mcp.json"):
         try:
             json.loads((ROOT / rel).read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as exc:
