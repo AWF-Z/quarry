@@ -2,6 +2,8 @@
 
 Thank you for helping improve Quarry. This repository is the public plugin and documentation surface, and contributions to that surface are welcome.
 
+Participation is governed by the [Code of Conduct](CODE_OF_CONDUCT.md).
+
 ## Good Contributions
 
 - improve the clarity, reliability, or usefulness of public research commands;

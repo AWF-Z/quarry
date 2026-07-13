@@ -16,6 +16,8 @@ REQUIRED = (
     "LICENSE",
     "SECURITY.md",
     "CONTRIBUTING.md",
+    "CODE_OF_CONDUCT.md",
+    ".github/CODEOWNERS",
     ".claude-plugin/plugin.json",
     ".claude-plugin/marketplace.json",
     "skills/quarry/SKILL.md",
