@@ -7,6 +7,7 @@ import argparse
 import json
 import os
 from pathlib import Path
+import secrets
 import shutil
 import subprocess
 import sys
@@ -15,11 +16,11 @@ import urllib.error
 import urllib.request
 
 
-VERSION = "1.0.2"
-DEFAULT_SOURCE_BASE = "https://raw.githubusercontent.com/AWF-Z/quarry/v1.0.2"
+VERSION = "1.0.3"
+DEFAULT_SOURCE_BASE = "https://raw.githubusercontent.com/AWF-Z/quarry/v1.0.3"
 DEFAULT_API_URL = "https://quarry-core-awfz.fly.dev"
 SUPPORTED_AGENTS = ("claude", "codex", "gemini", "cursor", "vscode")
-EXPECTED_TOOLS = ("quarry_start", "quarry_submit", "quarry_finalize", "quarry_status")
+EXPECTED_TOOLS = ("quarry_start", "quarry_submit", "quarry_finalize", "quarry_artifact")
 
 
 def _home() -> Path:
@@ -65,9 +66,11 @@ def _protocol_tools(client: Path) -> tuple[str, ...]:
         {"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}},
     )
     payload = "".join(json.dumps(item, separators=(",", ":")) + "\n" for item in requests)
+    environment = dict(os.environ)
+    environment.pop("QUARRY_PROTOCOL", None)
     completed = subprocess.run(
         [sys.executable or "python3", str(client)], input=payload, text=True,
-        capture_output=True, timeout=10, check=False,
+        capture_output=True, timeout=10, check=False, env=environment,
     )
     if completed.returncode != 0:
         raise RuntimeError("the Quarry MCP client did not start")
@@ -211,13 +214,30 @@ def _agent_skill_ready(agent: str) -> bool:
 
 
 def _service_health(api_url: str) -> tuple[bool, str]:
-    request = urllib.request.Request(api_url.rstrip("/") + "/v1/health",
-                                     headers={"User-Agent": f"Quarry-Doctor/{VERSION}"})
+    headers = {"User-Agent": f"Quarry-Doctor/{VERSION}"}
+    token = os.environ.get("QUARRY_API_KEY", "").strip()
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+    else:
+        identity_path = Path(os.environ.get("QUARRY_CLIENT_ID_FILE", _home() / "client_id")).expanduser()
+        identity = os.environ.get("QUARRY_CLIENT_ID", "").strip()
+        if not identity:
+            try:
+                identity = identity_path.read_text().strip()
+            except OSError:
+                identity = ""
+        if not identity:
+            identity = "qc_" + secrets.token_urlsafe(24)
+            _atomic_write(identity_path, (identity + "\n").encode(), 0o600)
+        headers["X-Quarry-Client-ID"] = identity
+    request = urllib.request.Request(api_url.rstrip("/") + "/v2/doctor",
+                                     headers=headers)
     try:
         with urllib.request.urlopen(request, timeout=10) as response:
             payload = json.loads(response.read(64_000))
-        ready = bool(payload.get("ok"))
-        return ready, "reachable" if ready else "health check returned not-ready"
+        ready = bool(payload.get("ready"))
+        detail = f"protocol v2 ready ({payload.get('deployment_id', 'deployment unknown')})"
+        return ready, detail if ready else "protocol v2 doctor returned not-ready"
     except (urllib.error.URLError, TimeoutError, OSError, ValueError) as exc:
         return False, f"unreachable ({type(exc).__name__})"
 
@@ -279,7 +299,7 @@ def doctor(args: argparse.Namespace, *, agents: list[str] | None = None) -> int:
     if failures:
         print("Doctor result: INCOMPLETE. Run the installer again, then restart the affected agent.")
         return 1
-    print("Doctor result: FULL QUARRY READY. Restart open agent sessions once after installation.")
+    print("Doctor result: QUARRY INSTALLATION READY. Restart open agent sessions once after installation.")
     return 0
 
 
@@ -329,6 +349,7 @@ def install(args: argparse.Namespace) -> int:
 
     _atomic_write(root / "install-state.json", (json.dumps({
         "version": VERSION,
+        "protocol_version": "2",
         "configured_agents": configured,
         "restart_required": bool(configured),
     }, indent=2) + "\n").encode(), 0o600)

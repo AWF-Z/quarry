@@ -15,7 +15,7 @@ Quarry mengubah riset open-ended menjadi peluang yang berbasis bukti, sudut pand
 ![Quarry blind comparison](../assets/i18n/id/quarry-sonnet-comparison.svg)
 
 ```text
-curl -fsSL https://raw.githubusercontent.com/AWF-Z/quarry/v1.0.2/install.py | python3
+curl -fsSL https://raw.githubusercontent.com/AWF-Z/quarry/v1.0.3/install.py | python3
 ```
 
 *Internal blinded evaluation. Same task and model configuration; Quarry adds its research workflow.*

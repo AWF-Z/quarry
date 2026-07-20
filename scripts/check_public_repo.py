@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import sys
@@ -97,6 +98,28 @@ def check_release_hygiene(errors: list[str]) -> None:
                 fail(errors, f"{path.relative_to(ROOT)}: resembles a committed credential")
 
 
+def check_release_consistency(errors: list[str]) -> None:
+    version = "1.0.3"
+    installer = (ROOT / "install.py").read_text(encoding="utf-8")
+    client = (ROOT / "client/quarry_mcp.py").read_text(encoding="utf-8")
+    readme = (ROOT / "README.md").read_text(encoding="utf-8")
+    plugin = json.loads((ROOT / ".claude-plugin/plugin.json").read_text(encoding="utf-8"))
+    expected = [
+        (f'VERSION = "{version}"', "install.py", installer),
+        (f'/AWF-Z/quarry/v{version}', "install.py", installer),
+        (f'VERSION = "{version}"', "client/quarry_mcp.py", client),
+        (f'/AWF-Z/quarry/v{version}/install.py', "README.md", readme),
+    ]
+    for needle, name, text in expected:
+        if needle not in text:
+            fail(errors, f"{name}: release version is not {version}")
+    if plugin.get("version") != version:
+        fail(errors, f".claude-plugin/plugin.json: release version is not {version}")
+    digest = hashlib.sha256((ROOT / "install.py").read_bytes()).hexdigest()
+    if f'{digest}  quarry-install.py' not in readme:
+        fail(errors, "README.md: installer SHA-256 does not match install.py")
+
+
 def main() -> int:
     errors: list[str] = []
     for rel in REQUIRED:
@@ -107,6 +130,7 @@ def main() -> int:
     check_markdown_links(errors)
     check_front_matter(errors)
     check_release_hygiene(errors)
+    check_release_consistency(errors)
 
     if errors:
         print("Public repository validation failed:")

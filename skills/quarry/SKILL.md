@@ -11,7 +11,8 @@ Turn open-ended research into a grounded decision.
 
 The user does not choose between confusing modes. For every qualifying research request:
 
-1. Use Full Quarry automatically when all four Quarry MCP tools are available.
+1. Use Full Quarry automatically when `quarry_start`, `quarry_submit`,
+   `quarry_finalize`, and `quarry_artifact` are available.
 2. Otherwise use the public skill behavior as a fallback.
 3. Never claim or imply that Full Quarry ran unless `quarry_finalize` returned a real execution receipt.
 
@@ -22,17 +23,36 @@ Every final research answer must end with exactly one visible execution line:
 
 Never invent a run ID, round count, or verified-source count. If the user explicitly asks for "Full Quarry", "the full pipeline", or equivalent and the tools are missing or a tool call fails, say that Full Quarry is unavailable before continuing with the clearly labeled fallback. A similar-looking answer is not evidence that the full engine ran.
 
+Never create, guess, copy, or send a host/chat turn identifier. Protocol v2
+makes the Quarry service mint the signed run binding. Preserve the returned
+`run_id`, `run_capability`, and canonical question exactly through submission
+and finalization.
+
 ## Full Quarry engine
 
 When the Quarry MCP tools are available, use them automatically for qualifying research:
 
-1. Call `quarry_start` before broad research.
+1. Call `quarry_start` before broad research, sending only a public-safe question.
 2. Follow its protected research directives using the agent's normal research tools.
-3. Call `quarry_submit` with candidate objects, public source URLs, and exact supporting quotes.
+3. Call `quarry_submit` with the returned capability, canonical question,
+   candidate objects, public source URLs, and exact supporting quotes.
 4. If Quarry requests differentiation, research the named gap and submit the next round.
-5. Call `quarry_finalize` and use its decision briefs as the final answer's backbone.
+5. Call `quarry_finalize`, then call `quarry_artifact` once with its artifact ID
+   and retrieval token. Use the bounded verified summary and exact receipt
+   display in the answer; do not invent receipt or artifact contents.
 
-Do not send private files, credentials, private source contents, or information the user did not intend to share. If the hosted service is unavailable, state that the full engine was unavailable and continue with the public behavior below rather than pretending the private checks ran.
+Do not send private files, credentials, private source contents, unreleased
+strategy, private competition or benchmark details, expected answers, judge
+material, another arm's output, or campaign aggregates. If a
+decision-equivalent public abstraction can be written without leaking or
+distorting private facts, research that abstraction with the hosted tools and
+combine the public findings with private context locally. If no safe abstraction
+exists, use the public skill fallback. This is a privacy-preserving choice—not a
+rejected receipt, failed handshake, activation error, or hosted outage.
+
+If the hosted service is genuinely unavailable, state that Full Quarry was
+unavailable and continue with the public behavior below rather than pretending
+the private checks ran.
 
 ## When to activate
 
