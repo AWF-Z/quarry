@@ -15,13 +15,18 @@ import urllib.error
 import urllib.request
 
 
-VERSION = "1.0.2"
+VERSION = "1.0.3"
 PROTOCOL_VERSION = "2025-11-25"
 MAX_RESPONSE = 2_000_000
 DEFAULT_API_URL = "https://quarry-core-awfz.fly.dev"
 
 
-TOOLS = [
+def _active_protocol() -> str:
+    """Use server-minted protocol v2 unless an operator explicitly rolls back."""
+    return "v1" if os.environ.get("QUARRY_PROTOCOL", "v2").strip().lower() == "v1" else "v2"
+
+
+TOOLS_V1 = [
     {
         "name": "quarry_start",
         "description": "Start full Quarry research for a decision, opportunity, market, or validation question. Returns protected research directives and a run ID.",
@@ -112,6 +117,107 @@ TOOLS = [
 ]
 
 
+_SOURCE = {
+    "type": "object",
+    "properties": {
+        "url": {"type": "string"},
+        "quote": {"type": "string"},
+        "purpose": {"type": "string", "enum": ["buyer", "pain", "competitor", "why_now", "general"]},
+    },
+    "required": ["url", "quote", "purpose"],
+    "additionalProperties": False,
+}
+_CANDIDATE = {
+    "type": "object",
+    "properties": {
+        "title": {"type": "string"},
+        "buyer": {"type": "string"},
+        "buyer_workflow": {"type": "string"},
+        "buyer_evidence_summary": {"type": "string"},
+        "buyer_evidence_type": {"type": "string"},
+        "pain": {"type": "string"},
+        "workaround": {"type": "string"},
+        "incumbents": {"type": "array", "items": {"type": "string"}},
+        "what_exists": {"type": "string"},
+        "remaining_wedge": {"type": "string"},
+        "why_existing_is_insufficient": {"type": "string"},
+        "first_wedge": {"type": "string"},
+        "why_now": {"type": "string"},
+        "validation_test": {"type": "string"},
+        "walk_away_condition": {"type": "string"},
+        "sources": {"type": "array", "maxItems": 12, "items": _SOURCE},
+    },
+    "required": ["title", "pain", "remaining_wedge", "validation_test", "walk_away_condition", "sources"],
+    "additionalProperties": False,
+}
+
+TOOLS_V2 = [
+    {
+        "name": "quarry_start",
+        "description": "Start from a public-safe question. The service mints the signed run binding; never send a host turn identifier or private context.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "question": {"type": "string"},
+                "intent": {"type": "string"},
+                "domain": {"type": "string"},
+            },
+            "required": ["question"],
+            "additionalProperties": False,
+        },
+    },
+    {
+        "name": "quarry_submit",
+        "description": "Submit public evidence only. Relay the signed run capability and canonical question exactly; keep private strategy and campaign details local.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "run_id": {"type": "string"},
+                "run_capability": {"type": "string"},
+                "question": {"type": "string"},
+                "candidates": {"type": "array", "minItems": 1, "maxItems": 20, "items": _CANDIDATE},
+            },
+            "required": ["run_id", "run_capability", "question", "candidates"],
+            "additionalProperties": False,
+        },
+    },
+    {
+        "name": "quarry_finalize",
+        "description": "Finalize into a bounded verified summary and receipt plus a one-use artifact retrieval capability.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "run_id": {"type": "string"},
+                "run_capability": {"type": "string"},
+                "question": {"type": "string"},
+            },
+            "required": ["run_id", "run_capability", "question"],
+            "additionalProperties": False,
+        },
+    },
+    {
+        "name": "quarry_artifact",
+        "description": "Retrieve the signed full answer artifact once using the capability returned by quarry_finalize.",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "artifact_id": {"type": "string"},
+                "retrieval_token": {"type": "string"},
+            },
+            "required": ["artifact_id", "retrieval_token"],
+            "additionalProperties": False,
+        },
+    },
+]
+
+
+def _tools() -> list[dict]:
+    return TOOLS_V2 if _active_protocol() == "v2" else TOOLS_V1
+
+
+TOOLS = _tools()
+
+
 def _config():
     configured_base = ""
     config_path = Path(os.environ.get("QUARRY_CONFIG_FILE", "~/.quarry/config.json")).expanduser()
@@ -180,6 +286,8 @@ def _call_api(path: str, payload: dict | None = None, *, method: str = "POST") -
 
 
 def call_tool(name: str, arguments: dict) -> dict:
+    if _active_protocol() == "v2":
+        return _call_tool_v2(name, arguments)
     if name == "quarry_start":
         return _call_api("/v1/research/start", arguments)
     if name == "quarry_submit":
@@ -190,6 +298,45 @@ def call_tool(name: str, arguments: dict) -> dict:
         run_id = str(arguments.get("run_id", ""))
         return _call_api(f"/v1/research/{run_id}/status", method="GET")
     raise RuntimeError(f"unknown tool: {name}")
+
+
+def _call_tool_v2(name: str, arguments: dict) -> dict:
+    if name == "quarry_start":
+        return _call_api("/v2/research/start", {
+            "question": str(arguments.get("question", "")),
+            "host": arguments.get("host") or {},
+            "protocol_version": "2",
+        })
+    if name == "quarry_submit":
+        return _call_api("/v2/research/submit", {
+            "run_id": str(arguments.get("run_id", "")),
+            "run_capability": str(arguments.get("run_capability", "")),
+            "question": str(arguments.get("question", "")),
+            "candidates": arguments.get("candidates") or [],
+        })
+    if name == "quarry_finalize":
+        return _call_api("/v2/research/finalize", {
+            "run_id": str(arguments.get("run_id", "")),
+            "run_capability": str(arguments.get("run_capability", "")),
+            "question": str(arguments.get("question", "")),
+        })
+    if name == "quarry_artifact":
+        return _call_api("/v2/research/artifact", {
+            "artifact_id": str(arguments.get("artifact_id", "")),
+            "retrieval_token": str(arguments.get("retrieval_token", "")),
+        })
+    raise RuntimeError(f"unknown tool: {name}")
+
+
+def handshake() -> dict:
+    """Probe v2 without requiring a host-generated current-turn identifier."""
+    if _active_protocol() == "v2":
+        return doctor_v2()
+    return _call_api("/v1/handshake", method="GET")
+
+
+def doctor_v2() -> dict:
+    return _call_api("/v2/doctor", method="GET")
 
 
 def _result(request_id, result=None, error=None):
@@ -212,15 +359,16 @@ def handle(message: dict) -> dict | None:
                                     "capabilities": {"tools": {"listChanged": False}},
                                     "serverInfo": {"name": "quarry-core", "version": VERSION},
                                     "instructions": (
-                                        "Use Quarry automatically for research that must produce a decision. "
-                                        "Follow next_tool until quarry_finalize, then copy execution_receipt.display "
-                                        "verbatim into the final answer. If a full run cannot complete, label the "
-                                        "answer: Quarry Skill Only \u2022 hosted verification not run."
+                                        "Use Quarry automatically for public-safe decision research. Never create, "
+                                        "guess, copy, or send a host turn identifier: the service mints the signed "
+                                        "binding. Keep private strategy and campaign details local. Follow the v2 "
+                                        "lifecycle through quarry_artifact. If no safe public abstraction exists, "
+                                        "use the local skill and label: Quarry Skill Only \u2022 hosted verification not run."
                                     )})
     if method == "ping":
         return _result(request_id, {})
     if method == "tools/list":
-        return _result(request_id, {"tools": TOOLS})
+        return _result(request_id, {"tools": _tools()})
     if method == "tools/call":
         params = message.get("params") or {}
         try:

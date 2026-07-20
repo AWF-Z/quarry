@@ -38,21 +38,27 @@ class ClientTests(unittest.TestCase):
         self.assertEqual(response["result"]["protocolVersion"], "test-version")
         tools = CLIENT.handle({"jsonrpc": "2.0", "id": 2, "method": "tools/list"})["result"]["tools"]
         self.assertEqual([tool["name"] for tool in tools],
-                         ["quarry_start", "quarry_submit", "quarry_finalize", "quarry_status"])
+                         ["quarry_start", "quarry_submit", "quarry_finalize", "quarry_artifact"])
         instructions = response["result"]["instructions"]
-        self.assertIn("execution_receipt.display", instructions)
+        self.assertIn("Never create", instructions)
+        self.assertIn("service mints", instructions)
         self.assertIn("Quarry Skill Only", instructions)
 
-    def test_finalize_tool_requires_visible_execution_receipt(self):
+    def test_v2_schema_has_no_host_turn_id_and_binds_finalize(self):
         tools = CLIENT.handle({"jsonrpc": "2.0", "id": 2, "method": "tools/list"})["result"]["tools"]
+        start = next(tool for tool in tools if tool["name"] == "quarry_start")
         finalize = next(tool for tool in tools if tool["name"] == "quarry_finalize")
-        self.assertIn("mandatory execution_receipt", finalize["description"])
+        self.assertNotIn("activation_turn_id", json.dumps(start))
+        self.assertEqual(finalize["inputSchema"]["required"], ["run_id", "run_capability", "question"])
 
     def test_public_skill_requires_honest_mode_label(self):
         skill = (ROOT / "skills" / "quarry" / "SKILL.md").read_text(encoding="utf-8")
         self.assertIn("Full Quarry \u2022 run qr_...", skill)
         self.assertIn("Quarry Skill Only \u2022 hosted verification not run", skill)
         self.assertIn("Never invent a run ID", skill)
+        self.assertIn("Never create, guess, copy, or send a host/chat turn identifier", skill)
+        self.assertIn("privacy-preserving choice", skill)
+        self.assertIn("rejected receipt, failed handshake, activation error, or hosted outage", skill)
 
     def test_missing_endpoint_fails_closed(self):
         with patch.dict(os.environ, {"QUARRY_CONFIG_FILE": "/definitely/missing/quarry.json"}, clear=True), \
@@ -91,8 +97,8 @@ class ClientTests(unittest.TestCase):
             with patch.dict(os.environ, {"QUARRY_API_URL": "https://api.example.test",
                                          "QUARRY_API_KEY": "", "QUARRY_CLIENT_ID_FILE": identity_file}, clear=True), \
                  patch.object(CLIENT.urllib.request, "urlopen", side_effect=fake_open):
-                CLIENT._call_api("/v1/research/start", {"question": "one"})
-                CLIENT._call_api("/v1/research/start", {"question": "two"})
+                CLIENT._call_api("/v2/research/start", {"question": "one"})
+                CLIENT._call_api("/v2/research/start", {"question": "two"})
         self.assertEqual(captured[0], captured[1])
         self.assertTrue(captured[0].startswith("qc_"))
 
@@ -104,6 +110,56 @@ class ClientTests(unittest.TestCase):
                 base, token = CLIENT._config()
         self.assertEqual(base, "https://regional.example.test")
         self.assertEqual(token, "")
+
+    def test_default_start_uses_v2_and_never_sends_turn_identifier(self):
+        captured = {}
+
+        def fake_open(request, timeout=0):
+            captured["url"] = request.full_url
+            captured["payload"] = json.loads(request.data)
+            return Response({"run_id": "qr_test", "run_capability": "cap_test"})
+
+        with patch.dict(os.environ, {"QUARRY_API_URL": "https://api.example.test",
+                                     "QUARRY_API_KEY": "test-token"}, clear=True), \
+             patch.object(CLIENT.urllib.request, "urlopen", side_effect=fake_open):
+            CLIENT.call_tool("quarry_start", {"question": "Map this market"})
+        self.assertEqual(captured["url"], "https://api.example.test/v2/research/start")
+        self.assertEqual(captured["payload"]["question"], "Map this market")
+        self.assertNotIn("activation_turn_id", captured["payload"])
+
+    def test_explicit_v1_rollback_retains_legacy_tools(self):
+        with patch.dict(os.environ, {"QUARRY_PROTOCOL": "v1"}, clear=False):
+            tools = CLIENT.handle({"jsonrpc": "2.0", "id": 2, "method": "tools/list"})["result"]["tools"]
+        self.assertEqual([tool["name"] for tool in tools],
+                         ["quarry_start", "quarry_submit", "quarry_finalize", "quarry_status"])
+
+    def test_v2_lifecycle_relays_server_capability_and_canonical_question(self):
+        calls = []
+
+        def fake_call(path, payload=None, method="POST"):
+            calls.append((path, payload, method))
+            return {"ok": True}
+
+        with patch.object(CLIENT, "_call_api", side_effect=fake_call):
+            CLIENT.call_tool("quarry_submit", {
+                "run_id": "qr_test", "run_capability": "cap_test",
+                "question": "Canonical question", "candidates": [{"title": "A"}],
+            })
+            CLIENT.call_tool("quarry_finalize", {
+                "run_id": "qr_test", "run_capability": "cap_test",
+                "question": "Canonical question",
+            })
+            CLIENT.call_tool("quarry_artifact", {
+                "artifact_id": "qa_test", "retrieval_token": "rt_test",
+            })
+            CLIENT.handshake()
+        self.assertEqual([call[0] for call in calls], [
+            "/v2/research/submit", "/v2/research/finalize",
+            "/v2/research/artifact", "/v2/doctor",
+        ])
+        self.assertEqual(calls[0][1]["run_capability"], "cap_test")
+        self.assertEqual(calls[0][1]["question"], "Canonical question")
+        self.assertNotIn("activation_turn_id", json.dumps(calls))
 
 
 if __name__ == "__main__":

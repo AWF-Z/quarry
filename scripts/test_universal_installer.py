@@ -18,6 +18,20 @@ assert SPEC.loader
 SPEC.loader.exec_module(installer)
 
 
+class Response:
+    def __init__(self, payload: dict):
+        self.payload = json.dumps(payload).encode()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *_args):
+        return False
+
+    def read(self, limit=-1):
+        return self.payload[:limit] if limit >= 0 else self.payload
+
+
 def test_cursor_merge_preserves_existing() -> None:
     with tempfile.TemporaryDirectory() as temporary:
         home = Path(temporary)
@@ -49,6 +63,7 @@ def test_local_install_without_detected_agent() -> None:
 
 
 def test_agent_selection() -> None:
+    assert installer.SUPPORTED_AGENTS == ("claude", "codex", "gemini", "cursor", "vscode")
     with mock.patch.object(installer, "_detected_agents", return_value=["codex", "cursor"]):
         assert installer._select_agents(["auto"]) == ["codex", "cursor"]
     assert installer._select_agents(["codex", "codex", "gemini"]) == ["codex", "gemini"]
@@ -72,6 +87,27 @@ def test_cli_registration_uses_shared_client() -> None:
 
 def test_protocol_handshake_lists_every_full_quarry_tool() -> None:
     assert installer._protocol_tools(ROOT / "client" / "quarry_mcp.py") == installer.EXPECTED_TOOLS
+    assert installer.EXPECTED_TOOLS == (
+        "quarry_start", "quarry_submit", "quarry_finalize", "quarry_artifact")
+
+
+def test_service_doctor_uses_v2_contract() -> None:
+    captured = {}
+
+    def fake_open(request, timeout=0):
+        captured["url"] = request.full_url
+        captured["client_id"] = request.headers.get("X-quarry-client-id")
+        return Response({"ready": True, "deployment_id": "deployment-test"})
+
+    with tempfile.TemporaryDirectory() as temporary, \
+         mock.patch.dict(os.environ, {"QUARRY_HOME": temporary,
+                                      "QUARRY_CLIENT_ID": "client-test"}, clear=False), \
+         mock.patch.object(installer.urllib.request, "urlopen", side_effect=fake_open):
+        ready, detail = installer._service_health("https://api.example.test")
+    assert ready is True
+    assert captured["url"] == "https://api.example.test/v2/doctor"
+    assert captured["client_id"] == "client-test"
+    assert "deployment-test" in detail
 
 
 def test_doctor_fails_when_agent_registration_is_missing() -> None:
@@ -141,6 +177,7 @@ def main() -> int:
     test_manual_config_contains_endpoint_and_client()
     test_cli_registration_uses_shared_client()
     test_protocol_handshake_lists_every_full_quarry_tool()
+    test_service_doctor_uses_v2_contract()
     test_doctor_fails_when_agent_registration_is_missing()
     test_doctor_passes_only_with_skill_tools_service_and_registration()
     test_doctor_covers_every_supported_agent_host()
