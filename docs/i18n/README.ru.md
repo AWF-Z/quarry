@@ -10,10 +10,6 @@ Quarry превращает открытое исследование в обо�
 
 </div>
 
-![Quarry research outcomes](../assets/i18n/ru/quarry-proof-numbers.svg)
-
-![Quarry blind comparison](../assets/i18n/ru/quarry-sonnet-comparison.svg)
-
 ```text
 curl -fsSL https://raw.githubusercontent.com/AWF-Z/quarry/v1.0.3/install.py | python3
 ```

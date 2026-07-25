@@ -10,10 +10,6 @@ Quarry는 열린 리서치를 근거 있는 기회, 경쟁 관점, 그리고 다
 
 </div>
 
-![Quarry research outcomes](../assets/i18n/ko/quarry-proof-numbers.svg)
-
-![Quarry blind comparison](../assets/i18n/ko/quarry-sonnet-comparison.svg)
-
 ```text
 curl -fsSL https://raw.githubusercontent.com/AWF-Z/quarry/v1.0.3/install.py | python3
 ```

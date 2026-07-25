@@ -10,10 +10,6 @@ Quarry mengubah riset open-ended menjadi peluang yang berbasis bukti, sudut pand
 
 </div>
 
-![Quarry research outcomes](../assets/i18n/id/quarry-proof-numbers.svg)
-
-![Quarry blind comparison](../assets/i18n/id/quarry-sonnet-comparison.svg)
-
 ```text
 curl -fsSL https://raw.githubusercontent.com/AWF-Z/quarry/v1.0.3/install.py | python3
 ```

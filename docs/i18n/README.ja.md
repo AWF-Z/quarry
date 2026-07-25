@@ -10,10 +10,6 @@ Quarryは、オープンエンドなリサーチを、根拠に基づいたオ�
 
 </div>
 
-![Quarry research outcomes](../assets/i18n/ja/quarry-proof-numbers.svg)
-
-![Quarry blind comparison](../assets/i18n/ja/quarry-sonnet-comparison.svg)
-
 ```text
 curl -fsSL https://raw.githubusercontent.com/AWF-Z/quarry/v1.0.3/install.py | python3
 ```

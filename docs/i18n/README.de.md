@@ -10,10 +10,6 @@ Quarry verwandelt offene Recherche in fundierte Chancen, Wettbewerbsvorteile und
 
 </div>
 
-![Quarry research outcomes](../assets/i18n/de/quarry-proof-numbers.svg)
-
-![Quarry blind comparison](../assets/i18n/de/quarry-sonnet-comparison.svg)
-
 ```text
 curl -fsSL https://raw.githubusercontent.com/AWF-Z/quarry/v1.0.3/install.py | python3
 ```

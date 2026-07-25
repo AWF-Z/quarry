@@ -10,11 +10,7 @@ Quarry helps agents uncover better opportunities, eliminate weak directions, ver
 
 </div>
 
-![Quarry research outcomes from internal evaluations: 2.08x verified opportunities per research run; 81.7% fewer unsupported claims after evidence checks; 100% of planted source errors caught; 34 high-potential opportunities rated 8/10 or higher; complete evidence trails in 100% of runs.](docs/assets/quarry-proof-numbers.svg)
-
 The same model, asked the same question. Quarry pushes the research past a generic answer and toward a grounded decision.
-
-![On 17 real decision tasks with the same Claude Sonnet 5 configuration and a blind judge, Sonnet 5 alone was preferred 12% of the time and Sonnet 5 with Quarry was preferred 88%. Quarry also eliminated 4.35 weak directions per run, produced a concrete one-week test for every result, and caught existing competitors in 8 of 8 cases before recommendation. Internal evaluation.](docs/assets/quarry-sonnet-comparison.svg)
 
 <div align="center">
 
@@ -136,7 +132,9 @@ This makes Quarry ready for regional mirrors and endpoints. The current public f
 
 ## Numbers
 
-The figures above come from separate internal, precommitted evaluations of the full Quarry system. The blind comparison used the same Sonnet 5 configuration on both sides across 17 real decision tasks; a tie did not count as a Quarry win. They are not third-party-replicated results and are presented as internal evidence, not a universal model benchmark.
+Benchmarks in progress. Every result, including the negative ones, is published.
+
+Earlier internal figures have been withdrawn from this page. They were produced under an output contract that asked the Quarry arm for fields the control arm was never asked for, so they measured schema asymmetry rather than research quality, and they are not re-earnable in that form. The replacement evaluations use an identical output contract for both arms, a real comparator, and a scoring rubric written before the contracts. Their results will be published here whichever way they fall.
 
 ## Privacy
 

@@ -10,10 +10,6 @@ O Quarry transforma pesquisas abertas em oportunidades concretas, ângulos compe
 
 </div>
 
-![Quarry research outcomes](../assets/i18n/pt-BR/quarry-proof-numbers.svg)
-
-![Quarry blind comparison](../assets/i18n/pt-BR/quarry-sonnet-comparison.svg)
-
 ```text
 curl -fsSL https://raw.githubusercontent.com/AWF-Z/quarry/v1.0.3/install.py | python3
 ```

@@ -10,10 +10,6 @@ Quarry 把开放式研究,转化为有理有据的机会、有竞争力的切入
 
 </div>
 
-![Quarry research outcomes](../assets/i18n/zh-CN/quarry-proof-numbers.svg)
-
-![Quarry blind comparison](../assets/i18n/zh-CN/quarry-sonnet-comparison.svg)
-
 ```text
 curl -fsSL https://raw.githubusercontent.com/AWF-Z/quarry/v1.0.3/install.py | python3
 ```
